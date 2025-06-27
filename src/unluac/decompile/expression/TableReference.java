@@ -37,6 +37,7 @@ public class TableReference extends Expression {
   private static boolean isUpvalueOf(LFunction function, String id) {
     for(int i = 0; i < function.upvalues.length; i++) {
       LUpvalue upvalue = function.upvalues[i];
+      if (upvalue.name == null) continue;
       if(upvalue.name.equals(id)) {
         return true;
       }
