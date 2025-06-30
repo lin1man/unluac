@@ -133,7 +133,11 @@ public class CodeSimplify {
         Expression ltable = getLocalVariable(table, declarations);
         if (!(ltable instanceof TableLiteral)) return false;
         Expression value = ((Assignment) statement).getTargetValue(0);
-        if (!(value instanceof ConstantExpression) && !(value instanceof TableLiteral)) return false;
+        if (!(value instanceof ConstantExpression)
+                && !(value instanceof TableLiteral)
+                && !(value instanceof UpvalueExpression)) {
+            return false;
+        }
         ((TableLiteral) ltable).putEntry(((TableTarget) target).index, value);
         return true;
     }
@@ -180,7 +184,6 @@ public class CodeSimplify {
                             unusedSid.add(statement.getSid());
                             continue;
                         }
-                        System.out.println("");
                     }
                 }
             }
