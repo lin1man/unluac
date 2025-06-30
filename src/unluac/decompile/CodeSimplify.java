@@ -3,10 +3,7 @@ package unluac.decompile;
 import javafx.util.Pair;
 import unluac.decompile.block.Block;
 import unluac.decompile.block.ContainerBlock;
-import unluac.decompile.expression.ClosureExpression;
-import unluac.decompile.expression.Expression;
-import unluac.decompile.expression.FunctionCall;
-import unluac.decompile.expression.LocalVariable;
+import unluac.decompile.expression.*;
 import unluac.decompile.statement.Assignment;
 import unluac.decompile.statement.FunctionCallStatement;
 import unluac.decompile.statement.Return;
@@ -98,6 +95,21 @@ public class CodeSimplify {
             }
         }
     }
+    public static void replaceBinaryValue(Expression expression, Map<Declaration, Expression> declarations) {
+        if (!(expression instanceof BinaryExpression)) return;
+        Expression le = replaceLocalVariable(((BinaryExpression) expression).left, declarations);
+        if (le != null) {
+            ((BinaryExpression) expression).left = le;
+        }
+        if (((BinaryExpression) expression).right instanceof BinaryExpression) {
+            replaceBinaryValue(((BinaryExpression) expression).right, declarations);
+        } else {
+            Expression re = replaceLocalVariable(((BinaryExpression) expression).right, declarations);
+            if (re != null) {
+                ((BinaryExpression) expression).right = re;
+            }
+        }
+    }
     public static void localAssignOpt(Block block, Registers registers) {
         Map<Declaration, Expression> declarations = new HashMap<>();
         if (!(block instanceof ContainerBlock)) return;
@@ -114,6 +126,7 @@ public class CodeSimplify {
                     declarations.remove(decl);// function Lxxx_yyy()
                     continue;
                 }
+                replaceBinaryValue(value, declarations);
 //                value = replaceExpressionValues(value, declarations);
 
                 if (declarations.containsKey(decl)) {

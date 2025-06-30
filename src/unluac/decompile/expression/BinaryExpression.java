@@ -7,8 +7,8 @@ import unluac.decompile.Walker;
 public class BinaryExpression extends Expression {
 
   private final String op;
-  private final Expression left;
-  private final Expression right;
+  public Expression left;
+  public Expression right;
   private final int associativity;
   
   public static BinaryExpression replaceRight(BinaryExpression template, Expression replacement) {
