@@ -11,8 +11,8 @@ public class TableReference extends Expression {
 
   private final Registers r;
   private final int line;
-  private final Expression table;
-  private final Expression index;
+  public Expression table;
+  public Expression index;
   
   public TableReference(Registers r, int line, Expression table, Expression index) {
     super(PRECEDENCE_ATOMIC);

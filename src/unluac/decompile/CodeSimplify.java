@@ -110,6 +110,19 @@ public class CodeSimplify {
             }
         }
     }
+    public static void replaceTableReference(Expression expression, Map<Declaration, Expression> declarations) {
+        if (!(expression instanceof TableReference)) return;
+        Expression table = replaceLocalVariable(((TableReference) expression).table, declarations);
+        if (table != null) {
+            if (!(table instanceof TableLiteral)) {
+                ((TableReference) expression).table = table;
+            }
+        }
+        Expression index = replaceLocalVariable(((TableReference) expression).index, declarations);
+        if (index != null) {
+            ((TableReference) expression).index = index;
+        }
+    }
     public static void localAssignOpt(Block block, Registers registers) {
         Map<Declaration, Expression> declarations = new HashMap<>();
         if (!(block instanceof ContainerBlock)) return;
@@ -127,6 +140,7 @@ public class CodeSimplify {
                     continue;
                 }
                 replaceBinaryValue(value, declarations);
+                replaceTableReference(value, declarations);
 //                value = replaceExpressionValues(value, declarations);
 
                 if (declarations.containsKey(decl)) {
