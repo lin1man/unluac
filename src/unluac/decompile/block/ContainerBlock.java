@@ -70,7 +70,7 @@ abstract public class ContainerBlock extends Block {
     return statements.size();
   }
   public Statement getStatement(int index) {
-    if (index < 0 || index > statements.size()) return null;
+    if (index < 0 || index >= statements.size()) return null;
     return statements.get(index);
   }
   public void setStatement(int index, Statement statement) {

@@ -16,8 +16,8 @@ import java.util.*;
 
 public class CodeSimplify {
     public static void simplify(Block block, Registers registers) {
-        localAssignOpt(block, registers);
-        removeUnusedLocalVariable(block, registers);
+        localAssignOpt(block, null);
+        removeUnusedLocalVariable(block, false);
     }
     public static Pair<Declaration, Expression> getAssignValue(Statement statement) {
         if (!(statement instanceof Assignment)) return null;
@@ -93,6 +93,8 @@ public class CodeSimplify {
             FunctionCall rexpression = replaceFuncCallExpressionValues(expression, declarations);
             if (rexpression != null) {
                 ((FunctionCallStatement) statement).call = rexpression;
+            } else {
+                System.out.println("funccall null");
             }
         }
     }
@@ -141,13 +143,20 @@ public class CodeSimplify {
         ((TableLiteral) ltable).putEntry(((TableTarget) target).index, value);
         return true;
     }
-    public static void localAssignOpt(Block block, Registers registers) {
+    public static void localAssignOpt(Block block, Map<Declaration, Expression> declarations) {
         Set<String> unusedSid = new HashSet<>();
-        Map<Declaration, Expression> declarations = new HashMap<>();
+        if (declarations == null) {
+            declarations = new HashMap<>();
+        }
         if (!(block instanceof ContainerBlock)) return;
         int statementCount = ((ContainerBlock) block).getStatementSize();
         for (int i = 0; i < statementCount; i++) {
             Statement statement = ((ContainerBlock) block).getStatement(i);
+            if (statement instanceof ContainerBlock) {
+                localAssignOpt((Block)statement, declarations);
+                removeUnusedLocalVariable((Block)statement, true);
+                continue;
+            }
             replaceLocalValues(statement, declarations);
 
             Pair<Declaration, Expression> pair = getAssignValue(statement);
@@ -198,7 +207,7 @@ public class CodeSimplify {
             this.sid = sid;
         }
     }
-    public static void removeUnusedLocalVariable(Block block, Registers registers) {
+    public static void removeUnusedLocalVariable(Block block, boolean isSub) {
         Set<String> unusedSid = new HashSet<>();
         Map<Declaration, DeclarationInfo> declarationInfoMap = new HashMap<>();
         if (!(block instanceof ContainerBlock)) return;
@@ -244,10 +253,12 @@ public class CodeSimplify {
                 }
             }
         }
-        if (block.function.functions == null || block.function.functions.length == 0) {
-            for (DeclarationInfo value : declarationInfoMap.values()) {
-                if (value.count == 0) {
-                    unusedSid.add(value.sid);
+        if (!isSub) {
+            if (block.function.functions == null || block.function.functions.length == 0) {
+                for (DeclarationInfo value : declarationInfoMap.values()) {
+                    if (value.count == 0) {
+                        unusedSid.add(value.sid);
+                    }
                 }
             }
         }
