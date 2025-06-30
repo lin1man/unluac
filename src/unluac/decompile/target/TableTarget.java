@@ -11,8 +11,8 @@ public class TableTarget extends Target {
 
   private final Registers r;
   private final int line;
-  private final Expression table;
-  private final Expression index;
+  public final Expression table;
+  public final Expression index;
   
   public TableTarget(Registers r, int line, Expression table, Expression index) {
     this.r = r;

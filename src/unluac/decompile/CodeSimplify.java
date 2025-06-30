@@ -8,6 +8,7 @@ import unluac.decompile.statement.Assignment;
 import unluac.decompile.statement.FunctionCallStatement;
 import unluac.decompile.statement.Return;
 import unluac.decompile.statement.Statement;
+import unluac.decompile.target.TableTarget;
 import unluac.decompile.target.Target;
 import unluac.decompile.target.VariableTarget;
 
@@ -30,7 +31,7 @@ public class CodeSimplify {
                 ((Assignment) statement).getFirstValue()
         );
     }
-    public static Expression replaceLocalVariable(Expression expression, Map<Declaration, Expression> declarations) {
+    public static Expression getLocalVariable(Expression expression, Map<Declaration, Expression> declarations) {
         if (expression instanceof LocalVariable) {
             Declaration decl = ((LocalVariable) expression).decl;
             if (declarations.containsKey(decl)) {
@@ -44,13 +45,13 @@ public class CodeSimplify {
         if (expression instanceof FunctionCall) {
             Expression func = ((FunctionCall) expression).function;
             Expression[] args = ((FunctionCall) expression).arguments;
-            Expression newFunc = replaceLocalVariable(func, declarations);
+            Expression newFunc = getLocalVariable(func, declarations);
             if (newFunc != null) {
                 func = newFunc;
                 isReplace = true;
             }
             for (int i = 0; i < args.length; i++) {
-                Expression rarg = replaceLocalVariable(args[i], declarations);
+                Expression rarg = getLocalVariable(args[i], declarations);
                 if (rarg != null) {
                     args[i] = rarg;
                     isReplace = true;
@@ -97,14 +98,14 @@ public class CodeSimplify {
     }
     public static void replaceBinaryValue(Expression expression, Map<Declaration, Expression> declarations) {
         if (!(expression instanceof BinaryExpression)) return;
-        Expression le = replaceLocalVariable(((BinaryExpression) expression).left, declarations);
+        Expression le = getLocalVariable(((BinaryExpression) expression).left, declarations);
         if (le != null) {
             ((BinaryExpression) expression).left = le;
         }
         if (((BinaryExpression) expression).right instanceof BinaryExpression) {
             replaceBinaryValue(((BinaryExpression) expression).right, declarations);
         } else {
-            Expression re = replaceLocalVariable(((BinaryExpression) expression).right, declarations);
+            Expression re = getLocalVariable(((BinaryExpression) expression).right, declarations);
             if (re != null) {
                 ((BinaryExpression) expression).right = re;
             }
@@ -112,18 +113,32 @@ public class CodeSimplify {
     }
     public static void replaceTableReference(Expression expression, Map<Declaration, Expression> declarations) {
         if (!(expression instanceof TableReference)) return;
-        Expression table = replaceLocalVariable(((TableReference) expression).table, declarations);
+        Expression table = getLocalVariable(((TableReference) expression).table, declarations);
         if (table != null) {
             if (!(table instanceof TableLiteral)) {
                 ((TableReference) expression).table = table;
             }
         }
-        Expression index = replaceLocalVariable(((TableReference) expression).index, declarations);
+        Expression index = getLocalVariable(((TableReference) expression).index, declarations);
         if (index != null) {
             ((TableReference) expression).index = index;
         }
     }
+    public static boolean handleConstTableLiteral(Statement statement, Map<Declaration, Expression> declarations) {
+        if (!(statement instanceof Assignment)) return false;
+        if (((Assignment) statement).getArity() != 1) return false;
+        Target target = ((Assignment) statement).getTarget(0);
+        if (!(target instanceof TableTarget)) return false;
+        Expression table = ((TableTarget) target).table;
+        Expression ltable = getLocalVariable(table, declarations);
+        if (!(ltable instanceof TableLiteral)) return false;
+        Expression value = ((Assignment) statement).getTargetValue(0);
+        if (!(value instanceof ConstantExpression) && !(value instanceof TableLiteral)) return false;
+        ((TableLiteral) ltable).putEntry(((TableTarget) target).index, value);
+        return true;
+    }
     public static void localAssignOpt(Block block, Registers registers) {
+        Set<String> unusedSid = new HashSet<>();
         Map<Declaration, Expression> declarations = new HashMap<>();
         if (!(block instanceof ContainerBlock)) return;
         int statementCount = ((ContainerBlock) block).getStatementSize();
@@ -159,10 +174,18 @@ public class CodeSimplify {
                                 declarations.remove(((VariableTarget) target).decl);
                             }
                         }
+                    } else {
+                        boolean isTable = handleConstTableLiteral(statement, declarations);
+                        if (isTable) {
+                            unusedSid.add(statement.getSid());
+                            continue;
+                        }
+                        System.out.println("");
                     }
                 }
             }
         }
+        ((ContainerBlock) block).removeStatement(unusedSid);
     }
     private static class DeclarationInfo {
         public String sid;

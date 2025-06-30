@@ -174,5 +174,20 @@ public class TableLiteral extends Expression {
   public boolean isBrief() {
     return false;
   }
-    
+
+  public void putEntry(Expression key, Expression value) {
+    for (int i = 0; i < entries.size(); i++) {
+      Entry entry = entries.get(i);
+      if (entry.key.equals(key)) {
+        Entry newEntry = new Entry(key, value, isList, generateTimestamp());
+        entries.set(i, newEntry);
+      }
+    }
+
+    Entry newEntry = new Entry(key, value, isList, generateTimestamp());
+    entries.add(newEntry);
+  }
+  private int generateTimestamp() {
+    return (int) System.currentTimeMillis();
+  }
 }

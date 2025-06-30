@@ -173,7 +173,7 @@ public class Constant {
   }
   
   public boolean isInteger() {
-    return number.value() == Math.round(number.value());
+    return number != null && number.value() == Math.round(number.value());
   }
   
   public boolean isNegative() {
