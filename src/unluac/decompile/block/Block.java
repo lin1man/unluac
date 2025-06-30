@@ -12,7 +12,7 @@ import unluac.parse.LFunction;
 
 abstract public class Block extends Statement implements Comparable<Block> {
 
-  protected final LFunction function;
+  public final LFunction function;
   public int begin;
   public int end;
   public int closeRegister;

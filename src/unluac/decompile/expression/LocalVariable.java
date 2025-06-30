@@ -7,7 +7,7 @@ import unluac.decompile.Walker;
 
 public class LocalVariable extends Expression {
   
-  private final Declaration decl;
+  public final Declaration decl;
   
   public LocalVariable(Declaration decl) {
     super(PRECEDENCE_ATOMIC);

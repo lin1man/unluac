@@ -8,8 +8,8 @@ import unluac.decompile.Walker;
 
 public class FunctionCall extends Expression {
 
-  private final Expression function;
-  private final Expression[] arguments;
+  public final Expression function;
+  public final Expression[] arguments;
   private final boolean multiple;
   
   public FunctionCall(Expression function, Expression[] arguments, boolean multiple) {

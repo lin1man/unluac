@@ -9,7 +9,7 @@ import unluac.decompile.expression.Expression;
 
 public class Return extends Statement {
 
-  private Expression[] values;
+  public Expression[] values;
   
   public Return() {
     values = new Expression[0];

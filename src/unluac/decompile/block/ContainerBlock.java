@@ -1,7 +1,9 @@
 package unluac.decompile.block;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import unluac.decompile.CloseType;
 import unluac.decompile.Walker;
@@ -63,5 +65,24 @@ abstract public class ContainerBlock extends Block {
   public void useClose() {
     usingClose = true;
   }
-  
+
+  public int getStatementSize() {
+    return statements.size();
+  }
+  public Statement getStatement(int index) {
+    if (index < 0 || index > statements.size()) return null;
+    return statements.get(index);
+  }
+  public void setStatement(int index, Statement statement) {
+    if (index < 0 || index > statements.size()) return;
+    if (statement == null) {
+      statements.remove(index);
+    } else {
+      statements.set(index, statement);
+    }
+  }
+  public void removeStatement(Set<String> sids) {
+    if (statements == null || sids.isEmpty()) return;
+    statements.removeIf(statement -> statement != null && sids.contains(statement.getSid()));
+  }
 }

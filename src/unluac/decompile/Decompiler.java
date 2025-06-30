@@ -171,6 +171,9 @@ public class Decompiler {
       block.resolve(state.r);
     }
     handleUnusedConstants(state.outer);
+    if (getConfiguration().simplify) {
+      CodeSimplify.simplify(state.outer, state.r);
+    }
     return state;
   }
   

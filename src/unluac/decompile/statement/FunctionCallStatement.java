@@ -7,7 +7,7 @@ import unluac.decompile.expression.FunctionCall;
 
 public class FunctionCallStatement extends Statement {
 
-  private FunctionCall call;
+  public FunctionCall call;
   
   public FunctionCallStatement(FunctionCall call) {
     this.call = call;

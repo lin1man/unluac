@@ -62,12 +62,14 @@ public class Main {
             error("option \"" + arg + "\" doesn't have an argument", true);
           }
         } else if(arg.equals("--opmap")) {
-          if(i + 1 < args.length) {
+          if (i + 1 < args.length) {
             config.opmap = args[i + 1];
             i++;
           } else {
             error("option \"" + arg + "\" doesn't have an argument", true);
           }
+        } else if (arg.equals("--simplify")) {
+          config.simplify = true;
         } else {
           error("unrecognized option: " + arg, true);
         }
@@ -163,6 +165,7 @@ public class Main {
     System.out.println("  --output <file>   output to <file> instead of stdout");
     System.out.println("  --rawstring       copy string bytes directly to output");
     System.out.println("  --luaj            emulate Luaj's permissive parser");
+    System.out.println("  --simplify        code simplify");
   }
   
   private static void print_unluac_string(PrintStream out) {

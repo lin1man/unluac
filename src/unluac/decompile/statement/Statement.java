@@ -1,6 +1,7 @@
 package unluac.decompile.statement;
 
 import java.util.List;
+import java.util.UUID;
 
 import unluac.decompile.Decompiler;
 import unluac.decompile.Function;
@@ -8,7 +9,13 @@ import unluac.decompile.Output;
 import unluac.decompile.Walker;
 
 abstract public class Statement {
-
+  private String sid;
+  public Statement() {
+    sid = UUID.randomUUID().toString();
+  }
+  public String getSid() {
+    return sid;
+  }
   /**
    * Prints out a sequences of statements on separate lines. Correctly
    * informs the last statement that it is last in a block.

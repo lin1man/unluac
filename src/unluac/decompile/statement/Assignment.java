@@ -148,6 +148,21 @@ public class Assignment extends Statement {
     }
     throw new IllegalStateException();
   }
+  public int getTargetArity() {
+    return values.size();
+  }
+  public Target getTarget(int index) {
+    if (index < 0 || index >= targets.size()) return null;
+    return targets.get(index);
+  }
+  public Expression getTargetValue(int index) {
+    if (index < 0 || index >= values.size()) return null;
+    return values.get(index);
+  }
+  public void replaceTargetValue(int index, Expression expression) {
+    if (index < 0 || index >= values.size()) return;
+    values.set(index, expression);
+  }
   
   public boolean assignListEquals(List<Declaration> decls) {
     if(decls.size() != targets.size()) return false;
