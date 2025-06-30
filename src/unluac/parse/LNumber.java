@@ -181,7 +181,10 @@ class LIntNumber extends LNumber {
   }
   
   @Override
-  public String toPrintString(int flags) {    
+  public String toPrintString(int flags) {
+    if (number > 0x1000000 || number < -0x1000000) {
+      return "0x" + Integer.toHexString(number);
+    }
     return Integer.toString(number);
   }
   
@@ -221,7 +224,10 @@ class LLongNumber extends LNumber {
   }
   
   @Override
-  public String toPrintString(int flags) {    
+  public String toPrintString(int flags) {
+    if (number > 0x1000000 || number < -0x1000000) {
+      return "0x" + Long.toHexString(number);
+    }
     return Long.toString(number);
   }
   

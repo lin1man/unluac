@@ -1,6 +1,5 @@
 package unluac.decompile;
 
-import javafx.util.Pair;
 import unluac.decompile.block.Block;
 import unluac.decompile.block.ContainerBlock;
 import unluac.decompile.expression.*;
@@ -19,14 +18,14 @@ public class CodeSimplify {
         localAssignOpt(block, null);
         removeUnusedLocalVariable(block, false);
     }
-    public static Pair<Declaration, Expression> getAssignValue(Statement statement) {
+    public static AbstractMap.SimpleEntry<Declaration, Expression> getAssignValue(Statement statement) {
         if (!(statement instanceof Assignment)) return null;
         if (((Assignment) statement).getArity() != 1) return null;
 
         Target firstTarget = ((Assignment) statement).getFirstTarget();
         if (!(firstTarget instanceof VariableTarget)) return null;
 
-        return new Pair<>(
+        return new AbstractMap.SimpleEntry<>(
                 ((VariableTarget) firstTarget).decl,
                 ((Assignment) statement).getFirstValue()
         );
@@ -159,10 +158,10 @@ public class CodeSimplify {
             }
             replaceLocalValues(statement, declarations);
 
-            Pair<Declaration, Expression> pair = getAssignValue(statement);
-            if (pair != null) {
-                Declaration decl = pair.getKey();
-                Expression value = pair.getValue();
+            AbstractMap.SimpleEntry<Declaration, Expression> entry = getAssignValue(statement);
+            if (entry != null) {
+                Declaration decl = entry.getKey();
+                Expression value = entry.getValue();
                 if (value instanceof ClosureExpression) {
                     declarations.remove(decl);// function Lxxx_yyy()
                     continue;
